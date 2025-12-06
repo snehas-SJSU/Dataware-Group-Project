@@ -1,0 +1,8 @@
+version: 2
+
+models:
+  - name: fct_btc_indicators
+    columns:
+      - name: date
+        tests:
+          - not_null

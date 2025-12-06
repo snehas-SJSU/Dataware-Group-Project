@@ -1,0 +1,35 @@
+# Name your project! Lowercase + underscores.
+name: 'btc_elt'
+version: '1.0.0'
+
+# Tell dbt which profile to use (we’ll create this next).
+profile: 'btc_elt'
+
+# Where dbt looks for things (matches your prof’s layout).
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+# Build artifacts
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# -------- PARAMS (vars) --------
+# coin_id comes from env if set, else defaults to "bitcoin"
+vars:
+  coin_id: "{{ env_var('DBT_COIN_ID', 'ALL') }}"
+
+
+# Materializations
+models:
+  btc_elt:
+    +materialized: view
+    output:
+      +materialized: table
+    input:
+      +materialized: ephemeral

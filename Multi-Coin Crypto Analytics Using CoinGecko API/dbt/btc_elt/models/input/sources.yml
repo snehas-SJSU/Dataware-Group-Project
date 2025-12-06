@@ -1,0 +1,23 @@
+version: 2
+
+sources:
+  - name: raw
+    database: USER_DB_PEACOCK
+    schema: raw
+    description: "Schema which stores raw tables (ETL)"
+    tables:
+      - name: coin_gecko_market_daily
+        identifier: coin_gecko_market_daily
+        description: "Market Chart endpoint data (price, market_cap, volume)"
+      - name: coin_gecko_ohlc
+        identifier: coin_gecko_ohlc
+        description: "OHLC endpoint data (open, high, low, close)"
+
+  - name: analytics
+    database: USER_DB_PEACOCK
+    schema: analytics
+    description: "Schema which stores analytics tables (ELT)"
+    tables:
+      - name: fct_btc_indicators
+        identifier: fct_btc_indicators
+        description: "Daily BTC indicators built from raw sources"
