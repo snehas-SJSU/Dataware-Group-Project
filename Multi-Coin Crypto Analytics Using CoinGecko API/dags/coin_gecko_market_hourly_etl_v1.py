@@ -93,7 +93,7 @@ def load_coin_gecko_hourly(df, table_name="raw.coin_gecko_market_hourly"):
             df.rename(columns={"hour_ts": "HOUR_TS"}),
             table_name=table_name.split(".")[1].upper(),
             schema=table_name.split(".")[0].upper(),
-            overwrite=True,                 # reuse existing hourly table as requested
+            overwrite=False,                 # append mode
             quote_identifiers=False,
             use_logical_type=True,
         )
@@ -116,7 +116,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id="coin_gecko_hourly_etl",      # renamed to reflect hourly-only ETL
+    dag_id="coin_gecko_hourly_etl_v1",
     start_date=datetime(2025, 10, 1),
     schedule_interval="0 * * * *",       # hourly
     catchup=False,
@@ -125,12 +125,11 @@ with DAG(
     max_active_runs=1,
 ) as dag:
 
-    coin_id = Variable.get("coin_id", default_var="bitcoin")
     vs_currency = Variable.get("vs_currency", default_var="usd")
+    coin_ids = ["bitcoin", "ethereum"]  # add more coins here if needed
 
-    # --- TASKFLOW: EXTRACT -> TRANSFORM -> LOAD ---
-    extract_hourly = extract_coin_gecko_hourly(coin_id, vs_currency)
-    transform_hourly = transform_coin_gecko_hourly(extract_hourly, coin_id)
-    load_hourly = load_coin_gecko_hourly(transform_hourly)
-
-    extract_hourly >> transform_hourly >> load_hourly
+    for coin in coin_ids:
+        extract_hourly = extract_coin_gecko_hourly(coin, vs_currency)
+        transform_hourly = transform_coin_gecko_hourly(extract_hourly, coin)
+        load_hourly = load_coin_gecko_hourly(transform_hourly)
+        extract_hourly >> transform_hourly >> load_hourly
