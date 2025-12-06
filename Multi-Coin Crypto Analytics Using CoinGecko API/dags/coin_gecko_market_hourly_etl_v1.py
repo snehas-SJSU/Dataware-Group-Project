@@ -93,7 +93,7 @@ def load_coin_gecko_hourly(df, table_name="raw.coin_gecko_market_hourly"):
             df.rename(columns={"hour_ts": "HOUR_TS"}),
             table_name=table_name.split(".")[1].upper(),
             schema=table_name.split(".")[0].upper(),
-            overwrite=False,                 # append mode
+            overwrite=False,  # append mode
             quote_identifiers=False,
             use_logical_type=True,
         )
@@ -118,7 +118,7 @@ default_args = {
 with DAG(
     dag_id="coin_gecko_hourly_etl_v1",
     start_date=datetime(2025, 10, 1),
-    schedule_interval="0 * * * *",       # hourly
+    schedule_interval="0 * * * *",  # hourly
     catchup=False,
     tags=["ETL", "CoinGecko", "Hourly"],
     default_args=default_args,
@@ -126,10 +126,12 @@ with DAG(
 ) as dag:
 
     vs_currency = Variable.get("vs_currency", default_var="usd")
-    coin_ids_csv = Variable.get("coin_ids_hourly", default_var="bitcoin")
+
+    # --- FIXED: Read Airflow variable 'coin_ids' (all coins) ---
+    coin_ids_csv = Variable.get("coin_ids", default_var="bitcoin")
     coin_ids = [c.strip() for c in coin_ids_csv.split(",") if c.strip()]
 
-    # Loop through coins inside DAG context
+    # Loop through coins
     for coin in coin_ids:
         extract_hourly = extract_coin_gecko_hourly(coin, vs_currency)
         transform_hourly = transform_coin_gecko_hourly(extract_hourly, coin)
