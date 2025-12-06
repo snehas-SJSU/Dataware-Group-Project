@@ -125,13 +125,13 @@ with DAG(
     max_active_runs=1,
 ) as dag:
 
-coin_ids_csv = Variable.get("coin_ids_hourly", default_var="bitcoin")
-coin_ids = [c.strip() for c in coin_ids_csv.split(",") if c.strip()]
+    vs_currency = Variable.get("vs_currency", default_var="usd")
+    coin_ids_csv = Variable.get("coin_ids_hourly", default_var="bitcoin")
+    coin_ids = [c.strip() for c in coin_ids_csv.split(",") if c.strip()]
 
-for coin in coin_ids:
-    extract_hourly = extract_coin_gecko_hourly(coin, vs_currency)
-    transform_hourly = transform_coin_gecko_hourly(extract_hourly, coin)
-    load_hourly = load_coin_gecko_hourly(transform_hourly)
-    
-    extract_hourly >> transform_hourly >> load_hourly
-
+    # Loop through coins inside DAG context
+    for coin in coin_ids:
+        extract_hourly = extract_coin_gecko_hourly(coin, vs_currency)
+        transform_hourly = transform_coin_gecko_hourly(extract_hourly, coin)
+        load_hourly = load_coin_gecko_hourly(transform_hourly)
+        extract_hourly >> transform_hourly >> load_hourly
