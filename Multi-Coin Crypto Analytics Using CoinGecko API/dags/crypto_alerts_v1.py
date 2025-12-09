@@ -1,7 +1,7 @@
 """
 DAG: crypto_alerts_v1
 Purpose:
-  - Read BTC + ETH indicators from ANALYTICS.FCT_BTC_INDICATORS
+  - Read indicators for all OHLC coins from ANALYTICS.FCT_BTC_INDICATORS
   - Generate technical alerts:
         * RSI overbought / oversold
         * MA7 vs MA30 (bullish / bearish trend)
@@ -17,6 +17,7 @@ from datetime import timedelta
 
 from airflow import DAG
 from airflow.decorators import task
+from airflow.models import Variable
 from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
 
 import pandas as pd
@@ -35,18 +36,17 @@ def return_snowflake_conn():
 @task
 def fetch_indicator_data():
     """
-    Fetch daily indicators for BTC + ETH from ANALYTICS.FCT_BTC_INDICATORS.
-    We only need:
-      - coin_id
-      - date
-      - rsi_strength_14d
-      - avg_price_7d
-      - avg_price_30d
-      - intraday_range_pct
+    Fetch daily indicators for all OHLC coins from ANALYTICS.FCT_BTC_INDICATORS.
     """
+
+    # NEW: Read coin list from Airflow variable (same as Forecast DAG)
+    coin_ids_ohlc_csv = Variable.get("coin_ids_ohlc", default_var="bitcoin,ethereum")
+    coins = [c.strip() for c in coin_ids_ohlc_csv.split(",") if c.strip()]
+    coins_sql = ",".join([f"'{c}'" for c in coins])
+
     conn = return_snowflake_conn()
     try:
-        sql = """
+        sql = f"""
             SELECT
                 coin_id,
                 date,
@@ -55,16 +55,16 @@ def fetch_indicator_data():
                 avg_price_30d,
                 intraday_range_pct
             FROM analytics.fct_btc_indicators
-            WHERE coin_id IN ('bitcoin', 'ethereum')
+            WHERE coin_id IN ({coins_sql})
               AND date IS NOT NULL
             ORDER BY coin_id, date
         """
         df = pd.read_sql(sql, conn)
 
         if df.empty:
-            raise ValueError("[alerts] No indicator rows found for BTC/ETH")
+            raise ValueError("[alerts] No indicator rows found for selected coins")
 
-        print(f"[alerts] Loaded {len(df)} indicator rows for BTC + ETH")
+        print(f"[alerts] Loaded {len(df)} indicator rows for coins: {coins}")
         return df.to_dict(orient="list")
     finally:
         conn.close()
@@ -74,16 +74,6 @@ def fetch_indicator_data():
 
 @task
 def build_alert_rows(indicator_payload: dict):
-    """
-    Apply alert rules on each row:
-      - RSI_OVERBOUGHT  : rsi > 70
-      - RSI_OVERSOLD    : rsi < 30
-      - BULLISH_TREND   : ma7 > ma30
-      - BEARISH_TREND   : ma7 < ma30
-      - HIGH_VOLATILITY : intraday_range_pct > 0.05 (5%)
-
-    Returns a list of alert dicts ready for loading.
-    """
 
     df = pd.DataFrame(indicator_payload)
     df.columns = df.columns.str.lower()
@@ -175,10 +165,6 @@ def build_alert_rows(indicator_payload: dict):
 @task
 def load_alerts(alert_rows,
                 table_name: str = "ANALYTICS.CRYPTO_ALERTS"):
-    """
-    Insert alert rows into ANALYTICS.CRYPTO_ALERTS.
-    Appends alerts, keeps history by ALERT_RUN_TS.
-    """
 
     if not alert_rows:
         print("[alerts] No alerts to load, skipping.")
@@ -195,7 +181,6 @@ def load_alerts(alert_rows,
     try:
         cur.execute("BEGIN;")
 
-        # create table if needed
         cur.execute(f"""
             CREATE TABLE IF NOT EXISTS {table_name} (
                 COIN_ID         STRING,
@@ -256,11 +241,11 @@ default_args = {
 with DAG(
     dag_id="crypto_alerts_v1",
     start_date=datetime(2025, 10, 1),
-    schedule=None,   # you can trigger from ML DAG later if you want
+    schedule=None,
     catchup=False,
     tags=["alerts", "analytics", "crypto"],
     default_args=default_args,
-    description="Builds technical alerts (RSI/MA/Vol) for BTC + ETH",
+    description="Builds technical alerts (RSI/MA/Vol) for all OHLC coins",
 ) as dag:
 
     indicator_payload = fetch_indicator_data()
