@@ -15,7 +15,7 @@ from datetime import timedelta
 
 from airflow import DAG
 from airflow.decorators import task
-from airflow.models import Variable          # <-- REQUIRED FIX
+from airflow.models import Variable
 from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 
@@ -49,11 +49,15 @@ def fetch_indicators_for_coin(coin_id: str):
         """
         df = pd.read_sql(sql, conn)
 
+        # --------- FIX: SKIP instead of failing ----------
         if df.empty:
-            raise ValueError(f"No rows found for coin_id = {coin_id}")
+            print(f"[fetch] No rows found for coin_id = {coin_id}, skipping this coin")
+            return {"coin_id": coin_id, "data": None}
+        # -------------------------------------------------
 
         print(f"[fetch] Loaded {len(df)} rows for {coin_id}")
         return {"coin_id": coin_id, "data": df.to_dict(orient="list")}
+
     finally:
         conn.close()
 
@@ -64,7 +68,15 @@ def fetch_indicators_for_coin(coin_id: str):
 
 @task
 def train_and_forecast(payload: dict, horizon_days: int = 14):
+
     coin_id = payload["coin_id"]
+
+    # --------- FIX: Skip if no data ----------
+    if payload["data"] is None:
+        print(f"[forecast] No indicator data for {coin_id}, skipping forecast")
+        return None
+    # ------------------------------------------
+
     df = pd.DataFrame(payload["data"])
 
     df.columns = df.columns.str.lower()
@@ -75,7 +87,8 @@ def train_and_forecast(payload: dict, horizon_days: int = 14):
     df["y"] = df["price"].astype(float)
 
     if df.shape[0] < 10:
-        raise ValueError(f"Not enough rows for training {coin_id}: {df.shape[0]}")
+        print(f"[forecast] Not enough rows for {coin_id}, skipping")
+        return None
 
     print(f"[forecast] Training Prophet for {coin_id} on {df.shape[0]} rows")
     model = Prophet(daily_seasonality=True, weekly_seasonality=True)
@@ -104,6 +117,12 @@ def train_and_forecast(payload: dict, horizon_days: int = 14):
 @task
 def load_forecast(payload: dict,
                   table_name: str = "ANALYTICS.CRYPTO_FORECAST_FINAL"):
+
+    # --------- FIX: Skip loading if forecast empty ----------
+    if payload is None:
+        print("[load] No forecast data to load (coin skipped)")
+        return
+    # --------------------------------------------------------
 
     df = pd.DataFrame(payload)
 
