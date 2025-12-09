@@ -83,7 +83,10 @@ def transform_coin_gecko_data(market_payload, history_days=90):
 
         df["coin_id"] = coin_id
         df["date"] = pd.to_datetime(df["timestamp"], unit="ms", utc=True).dt.date
-        df = df.sort_values("date").tail(history_days)
+
+        # ✅ FIX: Keep history per coin instead of trimming global dataset
+        df = df.sort_values("date").groupby("coin_id").tail(history_days)
+
         df.reset_index(drop=True, inplace=True)
 
         print(f"[market_chart] transformed {coin_id}: {len(df)} rows")
@@ -200,7 +203,9 @@ def transform_coin_gecko_ohlc(ohlc_payload, history_days=90):
         df["coin_id"] = coin_id
         df["date"] = pd.to_datetime(df["timestamp"], unit="ms", utc=True).dt.date
 
-        df = df.sort_values("date").tail(history_days)
+        # ✅ FIX: Keep history per coin
+        df = df.sort_values("date").groupby("coin_id").tail(history_days)
+
         df.reset_index(drop=True, inplace=True)
 
         print(f"[ohlc] transformed {coin_id}: {len(df)} rows")
@@ -287,8 +292,8 @@ with DAG(
 ) as dag:
 
     vs_currency = Variable.get("vs_currency", default_var="usd")
-    days = int(Variable.get("days", default_var="180"))
-    daily_days = int(Variable.get("daily_days", default_var="90"))
+    days = int(Variable.get("days", default_var="730"))
+    daily_days = int(Variable.get("daily_days", default_var="730"))
 
     # MARKET COINS
     coin_ids_csv = Variable.get("coin_ids", default_var="bitcoin")
