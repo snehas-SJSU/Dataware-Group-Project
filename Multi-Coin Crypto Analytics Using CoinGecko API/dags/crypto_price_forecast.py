@@ -1,7 +1,7 @@
 """
 DAG: crypto_price_forecast_v1
 Purpose:
-  - Loop through multiple coins (BTC + ETH)
+  - Loop through multiple coins (OHLC coins)
   - Read daily indicators from ANALYTICS.FCT_BTC_INDICATORS
   - Train Prophet model per coin
   - Write forecasts into ANALYTICS.CRYPTO_FORECAST_FINAL
@@ -15,8 +15,9 @@ from datetime import timedelta
 
 from airflow import DAG
 from airflow.decorators import task
+from airflow.models import Variable          # <-- REQUIRED FIX
 from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
-from airflow.operators.trigger_dagrun import TriggerDagRunOperator  # <-- NEW
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 
 import pandas as pd
 from prophet import Prophet
@@ -35,13 +36,6 @@ def return_snowflake_conn():
 
 @task
 def fetch_indicators_for_coin(coin_id: str):
-    """
-    Load daily indicators from ANALYTICS.FCT_BTC_INDICATORS for a given coin.
-    Required columns:
-      - DATE
-      - PRICE
-      - COIN_ID
-    """
 
     conn = return_snowflake_conn()
     try:
@@ -73,7 +67,6 @@ def train_and_forecast(payload: dict, horizon_days: int = 14):
     coin_id = payload["coin_id"]
     df = pd.DataFrame(payload["data"])
 
-    # Normalize columns
     df.columns = df.columns.str.lower()
     df = df.dropna(subset=["price"])
     df = df.sort_values("date")
@@ -105,7 +98,7 @@ def train_and_forecast(payload: dict, horizon_days: int = 14):
 
 
 # ======================================================
-# STEP 3: LOAD FORECASTS INTO SHARED TABLE
+# STEP 3: LOAD FORECASTS
 # ======================================================
 
 @task
@@ -184,13 +177,14 @@ default_args = {
 with DAG(
     dag_id="crypto_price_forecast_v1",
     start_date=datetime(2025, 10, 1),
-    schedule=None,        # triggered by ELT DAG
+    schedule=None,
     catchup=False,
     tags=["ML", "forecast", "analytics"],
     default_args=default_args,
 ) as dag:
 
-    coins = ["bitcoin", "ethereum"]
+    coin_ids_ohlc_csv = Variable.get("coin_ids_ohlc", default_var="bitcoin,ethereum")
+    coins = [c.strip() for c in coin_ids_ohlc_csv.split(",") if c.strip()]
 
     forecast_tasks = []
 
@@ -201,7 +195,6 @@ with DAG(
 
         forecast_tasks.append(load)
 
-    # Trigger Alerts DAG after all forecast loads finish
     trigger_alerts = TriggerDagRunOperator(
         task_id="trigger_crypto_alerts_v1",
         trigger_dag_id="crypto_alerts_v1",
