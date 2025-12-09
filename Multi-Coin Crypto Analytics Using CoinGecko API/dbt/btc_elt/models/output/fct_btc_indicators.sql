@@ -85,7 +85,7 @@ joined_data AS (
         o.low_price,
         o.close_price
     FROM market_daily m
-    INNER JOIN ohlc_daily o
+    LEFT JOIN ohlc_daily o
       ON  m.coin_id = o.coin_id
       AND m.date    = o.date
 ),
