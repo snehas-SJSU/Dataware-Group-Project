@@ -2,7 +2,6 @@
 # 📊 Multi-Coin Crypto Analytics Pipeline
 
 **Course:** DATA 226  
-**Author:** Sneha
 **Tools:** Airflow • Snowflake • dbt • Prophet • Preset BI
 
 ---
