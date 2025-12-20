@@ -10,13 +10,14 @@
 - [Design Decisions](#design-decisions)
 - [System Architecture](#system-architecture)
 - [Pipeline Components](#pipeline-components)
-- [Data Quality & Validation](#data-quality--validation)
+- [Data Quality & Validation](#data-quality-and-validation)
 - [Project Structure](#project-structure)
 - [How to Run](#how-to-run)
-- [Key Features](##key-features)
+- [Key Features](#key-features)
 - [Assumptions & Limitations](#assumptions--limitations)
 - [Future Enhancements](#future-enhancements)
 - [Conclusion](#conclusion)
+
 
 ---
 
