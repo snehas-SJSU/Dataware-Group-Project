@@ -23,6 +23,30 @@ The system integrates:
 
 ## 🏗️ System Architecture
 
+## System Architecture (Flowchart)
+
+```mermaid
+flowchart TD
+
+    Docker[Docker<br/>Initialize Airflow] --> AirflowStart[Airflow Starts]
+
+    AirflowStart --> ETL[Airflow ETL DAG<br/>(Hourly)]
+    ETL --> RawLoad[Load Data to Snowflake<br/>RAW Schema]
+
+    RawLoad --> DBT[Airflow DBT ELT DAG]
+    DBT --> DBTRun[dbt run / test / snapshot]
+
+    DBTRun --> Forecast[Airflow Forecast DAG<br/>(Prophet)]
+    Forecast --> ForecastTable[Load to<br/>ANALYTICS.CRYPTO_FORECAST_FINAL]
+
+    ForecastTable --> Alerts[Airflow Crypto Alerts DAG]
+    Alerts --> Indicators[Create Alert Indicators<br/>with Parameters]
+
+    Indicators --> Snowflake[Snowflake Analytics Layer]
+    Snowflake --> Preset[Preset BI Dashboard]
+
+
+
 ### **1️⃣ Airflow – ETL Layer**
 - Extracts daily OHLC + market data from CoinGecko.
 - Extracts hourly intraday prices for real-time monitoring.
