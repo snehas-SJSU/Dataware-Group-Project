@@ -28,7 +28,7 @@ The system integrates:
 
 ┌┌──────────────────────────────────────────────────────────────────────────────┐
 │                           CRYPTO DATA PLATFORM                                │
-└──────────────────────────────────────────────────────────────────────────────┘
+└──────────────────────────────────────────────────────────────────────────────-┘
 
 
 ┌──────────────┐
@@ -52,26 +52,26 @@ The system integrates:
        │                                               │
        │                                               ▼
        │                                    ┌──────────────────────────────┐
-       │                                    │ Transform the data and load   │
-       │                                    │ data to RAW schema            │
+       │                                    │ Transform the data and load  │
+       │                                    │ data to RAW schema           │
        │                                    └──────────┬───────────────────┘
        │                                               │
        ▼                                               ▼
-┌──────────────────────────┐                 ┌──────────────────────────┐
-│ Triggers the ELT DAG     │                 │        Snowflake          │
-└──────────┬──────────────┘                 │        (RAW Schema)       │
+┌─────────────────────────┐                 ┌───────────────────────── ┐
+│ Triggers the ELT DAG    │                 │        Snowflake         │
+└──────────┬──────────────┘                 │        (RAW Schema)      │
            │                                └──────────┬───────────────┘
            │                                           │
            ▼                                           ▼
 ┌──────────────────┐                         ┌──────────────────────────┐
-│     Airflow      │◀────────────────────────│ Takes the data from RAW   │
-│   DBT ELT DAG    │                         │ schema                    │
+│     Airflow      │◀────────────────────────│ Takes the data from RAW  │
+│   DBT ELT DAG    │                         │ schema                   │
 └──────┬───────────┘                         └──────────────────────────┘
        │
        ▼
 ┌──────────────────────────────────────────────────────────────────────┐
-│ Performs dbt run, dbt test, dbt snapshot                               │
-│ and triggers Forecast DAG                                              │
+│ Performs dbt run, dbt test, dbt snapshot                             │
+│ and triggers Forecast DAG                                            │
 └──────────┬───────────────────────────────────────────────────────────┘
            │
            ▼
@@ -83,8 +83,8 @@ The system integrates:
        │
        ▼
 ┌──────────────────────────────────────────────────────────────────────┐
-│ Triggers ALERTS DAG and loads data to                                  │
-│ ANALYTICS.CRYPTO_FORECAST_FINAL                                        │
+│ Triggers ALERTS DAG and loads data to                                │
+│ ANALYTICS.CRYPTO_FORECAST_FINAL                                      │
 └──────────┬───────────────────────────────────────────────────────────┘
            │
            ▼
@@ -96,7 +96,7 @@ The system integrates:
        │
        ▼
 ┌──────────────────────────────────────────────────────────────────────┐
-│ Creates the Alert Indicators with parameters                           │
+│ Creates the Alert Indicators with parameters                         │
 └──────────┬───────────────────────────────────────────────────────────┘
            │
            ▼
