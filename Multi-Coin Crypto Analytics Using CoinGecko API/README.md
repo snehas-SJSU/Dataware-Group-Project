@@ -13,11 +13,10 @@
 - [Data Quality & Validation](#data-quality--validation)
 - [Project Structure](#project-structure)
 - [How to Run](#how-to-run)
+- [Key Features](##key-features)
 - [Assumptions & Limitations](#assumptions--limitations)
-- [Key Features](#key-features)
 - [Future Enhancements](#future-enhancements)
 - [Conclusion](#conclusion)
-
 
 ---
 
