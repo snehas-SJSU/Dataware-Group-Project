@@ -21,7 +21,7 @@
 
 ---
 
- ## 🎯  Project Objective
+ ## 🎯 Project Objective
 
 The goal of this project is to build an end-to-end automated analytics pipeline that processes, transforms, forecasts, and visualizes cryptocurrency market data for multiple assets.
 
