@@ -94,7 +94,7 @@ crypto-pipeline/
 ├── dbt/
 │   └── btc_elt/
 │       ├── models/
-│       │── logs
+│       ├── logs 
 │       ├── snapshots/
 │       ├── tests
 │       ├── target
