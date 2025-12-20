@@ -1,5 +1,20 @@
 # 📊 Multi-Coin Crypto Analytics Pipeline
 
+## 📑 Table of Contents
+- Project Objective
+- Data Sources
+- Design Decisions
+- System Architecture
+- Pipeline Components
+- Data Quality & Validation
+- Project Structure
+- How to Run
+- Key Features
+- Assumptions & Limitations
+- Future Enhancements
+- Conclusion
+
+
 **Course:** DATA 226  
 **Technologies:** Apache Airflow • Snowflake • dbt • Prophet • Preset BI • Docker
 
