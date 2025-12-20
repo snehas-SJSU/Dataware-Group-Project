@@ -105,7 +105,7 @@ crypto-pipeline/
 ├── Dockerfile
 ├── docker-compose.yml
 └── README.md
-
+```
 
 ---
 
