@@ -92,15 +92,20 @@ crypto-pipeline/
 │       ├── crypto_price_forecast.py
 │       └── crypto_alerts_v1.py
 ├── dbt/
-│   └── crypto_analytics/
+│   └── btc_elt/
 │       ├── models/
+│       │── logs
 │       ├── snapshots/
+│       ├── tests
+│       ├── target
 │       ├── schema.yml
 │       └── dbt_project.yml
+│     └── profiles.yml
+│     └── .user.yml
 ├── Dockerfile
 ├── docker-compose.yml
 └── README.md
-```
+
 
 ---
 
