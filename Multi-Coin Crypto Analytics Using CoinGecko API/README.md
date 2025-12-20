@@ -187,7 +187,7 @@ Fact Model:
   - Moving Averages (7, 30)
   - RSI (14)
   - Volatility
-  - Momentum & returns
+  - Momentum & returns(7 days)
 
 Snapshots:
 - snap_btc_market.sql
