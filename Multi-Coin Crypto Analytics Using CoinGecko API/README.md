@@ -23,25 +23,96 @@ The system integrates:
 
 ## System Architecture 
 
-```mermaid
-flowchart TD
-    Docker["Docker: Initialize Airflow"] --> AirflowStart["Airflow Starts"]
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                           CRYPTO DATA PLATFORM                                │
+└──────────────────────────────────────────────────────────────────────────────┘
 
-    AirflowStart --> ETL["Airflow ETL DAG (Hourly)"]
-    ETL --> RawLoad["Load Data to Snowflake RAW Schema"]
 
-    RawLoad --> DBT["Airflow DBT ELT DAG"]
-    DBT --> DBTRun["dbt run / test / snapshot"]
+┌──────────────┐
+│   Docker     │
+│ (Initialize  │
+│  Airflow)    │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────────┐
+│  Starts Airflow  │
+└──────┬───────────┘
+       │
+       ├───────────────────────────────────────────────┐
+       │                                               │
+       ▼                                               ▼
+┌──────────────────┐                          ┌──────────────────┐
+│     Airflow      │                          │     Airflow      │
+│   ETL DAG        │                          │   Hourly DAG     │
+└──────┬───────────┘                          └──────┬───────────┘
+       │                                               │
+       │                                               ▼
+       │                                    ┌──────────────────────────────┐
+       │                                    │ Transform the data and load   │
+       │                                    │ data to RAW schema            │
+       │                                    └──────────┬───────────────────┘
+       │                                               │
+       ▼                                               ▼
+┌──────────────────────────┐                 ┌──────────────────────────┐
+│ Triggers the ELT DAG     │                 │        Snowflake         │
+└──────────┬──────────────┘                  │        (RAW Schema)      │
+           │                                 └──────────┬───────────────┘
+           │                                           │
+           ▼                                           ▼
+┌──────────────────┐                         ┌──────────────────────────┐
+│     Airflow      │◀────────────────────────│ Takes the data from RAW   │
+│   DBT ELT DAG    │                         │ schema                    │
+└──────┬───────────┘                         └──────────────────────────┘
+       │
+       ▼
+┌──────────────────────────────────────────────────────────────────────┐
+│ Performs dbt run, dbt test, dbt snapshot                               │
+│ and triggers Forecast DAG                                              │
+└──────────┬───────────────────────────────────────────────────────────┘
+           │
+           ▼
+┌──────────────────┐
+│     Airflow      │
+│ Forecast DAG     │
+│ (Prophet)        │
+└──────┬───────────┘
+       │
+       ▼
+┌──────────────────────────────────────────────────────────────────────┐
+│ Triggers ALERTS DAG and loads data to                                  │
+│ ANALYTICS.CRYPTO_FORECAST_FINAL                                        │
+└──────────┬───────────────────────────────────────────────────────────┘
+           │
+           ▼
+┌──────────────────┐
+│     Airflow      │
+│ Crypto Alerts    │
+│ DAG              │
+└──────┬───────────┘
+       │
+       ▼
+┌──────────────────────────────────────────────────────────────────────┐
+│ Creates the Alert Indicators with parameters                           │
+└──────────┬───────────────────────────────────────────────────────────┘
+           │
+           ▼
+┌──────────────────┐
+│   Snowflake      │
+└──────┬───────────┘
+       │
+       ▼
+┌──────────────────────────────┐
+│ Finally loads dataset to     │
+│ Preset                       │
+└──────────┬───────────────────┘
+           │
+           ▼
+┌──────────────────┐
+│   Preset BI      │
+└──────────────────┘
 
-    DBTRun --> Forecast["Forecast DAG using Prophet"]
-    Forecast --> ForecastTable["Load to ANALYTICS.CRYPTO_FORECAST_FINAL"]
-
-    ForecastTable --> Alerts["Crypto Alerts DAG"]
-    Alerts --> Indicators["Create Alert Indicators"]
-
-    Indicators --> Snowflake["Snowflake Analytics Layer"]
-    Snowflake --> Preset["Preset BI Dashboard"]
-
+----------------------
 
 
 
