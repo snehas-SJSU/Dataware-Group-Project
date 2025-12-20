@@ -1,18 +1,19 @@
 # 📊 Multi-Coin Crypto Analytics Pipeline
 
 ## 📑 Table of Contents
-- Project Objective
-- Data Sources
-- Design Decisions
-- System Architecture
-- Pipeline Components
-- Data Quality & Validation
-- Project Structure
-- How to Run
-- Key Features
-- Assumptions & Limitations
-- Future Enhancements
-- Conclusion
+- [Project Objective](#project-objective)
+- [Data Sources](#data-sources)
+- [Design Decisions](#design-decisions)
+- [System Architecture](#system-architecture)
+- [Pipeline Components](#pipeline-components)
+- [Data Quality & Validation](#data-quality--validation)
+- [Project Structure](#project-structure)
+- [How to Run](#how-to-run)
+- [Assumptions & Limitations](#assumptions--limitations)
+- [Key Features](#key-features)
+- [Future Enhancements](#future-enhancements)
+- [Conclusion](#conclusion)
+
 
 
 **Course:** DATA 226  
