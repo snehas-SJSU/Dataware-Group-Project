@@ -1,5 +1,9 @@
 # 📊 Multi-Coin Crypto Analytics Pipeline
 
+
+**Course:** DATA 226  
+**Technologies:** Apache Airflow • Snowflake • dbt • Prophet • Preset BI • Docker
+
 ## 📑 Table of Contents
 - [Project Objective](#project-objective)
 - [Data Sources](#data-sources)
@@ -15,13 +19,9 @@
 - [Conclusion](#conclusion)
 
 
-
-**Course:** DATA 226  
-**Technologies:** Apache Airflow • Snowflake • dbt • Prophet • Preset BI • Docker
-
 ---
 
-## 🎯 Project Objective
+##  Project Objective
 
 The goal of this project is to build an end-to-end automated analytics pipeline that processes, transforms, forecasts, and visualizes cryptocurrency market data for multiple assets.
 
