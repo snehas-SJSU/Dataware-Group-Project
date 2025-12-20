@@ -21,8 +21,7 @@ The system integrates:
 
 ---
 
-## 🏗️ System Architecture
-
+## System Architecture 
 
 ```mermaid
 flowchart TD
@@ -42,6 +41,7 @@ flowchart TD
 
     Indicators --> Snowflake["Snowflake Analytics Layer"]
     Snowflake --> Preset["Preset BI Dashboard"]
+
 
 
 
