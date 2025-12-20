@@ -76,26 +76,26 @@ The architecture follows modern ELT best practices.
        │                                               │
        │                                               ▼
        │                                    ┌──────────────────────────────┐
-       │                                    │ Transform data and load       │
-       │                                    │ into RAW schema               │
+       │                                    │ Transform data and load      │
+       │                                    │ into RAW schema              │
        │                                    └──────────┬───────────────────┘
        │                                               │
        ▼                                               ▼
 ┌──────────────────────────┐                 ┌──────────────────────────┐
-│ Triggers ELT DAG         │                 │        Snowflake          │
-└──────────┬───────────────┘                 │        RAW Schema         │
-           │                                └──────────┬───────────────┘
+│ Triggers ELT DAG         │                 │        Snowflake         │
+└──────────┬───────────────┘                 │        RAW Schema        │
+           │                                └──────────┬───────────────-┘
            │                                           │
            ▼                                           ▼
 ┌──────────────────┐                         ┌──────────────────────────┐
-│     Airflow      │◀────────────────────────│ dbt reads RAW data        │
+│     Airflow      │◀────────────────────────│ dbt reads RAW data       │
 │   DBT ELT DAG    │                         │                          │
 └──────┬───────────┘                         └──────────────────────────┘
        │
        ▼
 ┌──────────────────────────────────────────────────────────────────────┐
-│ dbt run • dbt test • dbt snapshot                                     │
-│ Triggers Forecast DAG                                                 │
+│ dbt run • dbt test • dbt snapshot                                    │
+│ Triggers Forecast DAG                                                │
 └──────────┬───────────────────────────────────────────────────────────┘
            │
            ▼
@@ -107,8 +107,8 @@ The architecture follows modern ELT best practices.
        │
        ▼
 ┌──────────────────────────────────────────────────────────────────────┐
-│ Loads forecasts → ANALYTICS.CRYPTO_FORECAST_FINAL                     │
-│ Triggers Alerts DAG                                                   │
+│ Loads forecasts → ANALYTICS.CRYPTO_FORECAST_FINAL                    │
+│ Triggers Alerts DAG                                                  │
 └──────────┬───────────────────────────────────────────────────────────┘
            │
            ▼
@@ -120,13 +120,13 @@ The architecture follows modern ELT best practices.
        │
        ▼
 ┌──────────────────────────────────────────────────────────────────────┐
-│ Generates alert indicators                                            │
+│ Generates alert indicators                                           │
 └──────────┬───────────────────────────────────────────────────────────┘
            │
            ▼
 ┌──────────────────┐
 │   Snowflake      │
-│ ANALYTICS       │
+│ ANALYTICS        │
 └──────┬───────────┘
        │
        ▼
