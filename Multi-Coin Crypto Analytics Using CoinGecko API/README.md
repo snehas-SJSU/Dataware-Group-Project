@@ -72,8 +72,8 @@ The architecture follows modern ELT best practices.
 
 ┌──────────────┐
 │   Docker     │
-│ Initialize  │
-│ Airflow     │
+│ Initialize   │
+│ Airflow      │
 └──────┬───────┘
        │
        ▼
