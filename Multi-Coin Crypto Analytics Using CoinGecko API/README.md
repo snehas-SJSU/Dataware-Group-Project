@@ -179,8 +179,9 @@ Dashboard features:
 ---
 
 ## 📂 Project Structure
-
 ```md
+
+
 crypto-pipeline/
 ├── airflow/
 │   └── dags/
